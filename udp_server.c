@@ -3,6 +3,8 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <stdlib.h>
+#include <time.h>
 
 int main(void){
     int socket_desc;
@@ -29,9 +31,110 @@ int main(void){
     client_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
     
     // Get input from the user:
-    printf("Enter message: ");
-    fgets(server_message, 100, stdin);
+    //printf("Enter message: ");
+    //fgets(server_message, 100, stdin);
     
+    //Generate Message --------------------------------------------------------
+
+    //Variables
+    int loopNumber = 1;
+    srand(time(NULL));
+
+    //Calculate Sequence Number
+    char sequenceNumber[2];
+    snprintf(sequenceNumber, sizeof(sequenceNumber), "%d", loopNumber);
+
+    //Calculate GPS Position
+    char gpsPositionPartOne[8];
+    char gpsPositionPartTwo[8];
+    float gpsPositionPartOneRaw = ((float)rand()/(float)(RAND_MAX))*10*10;
+    float gpsPositionPartTwoRaw = ((float)rand()/(float)(RAND_MAX))*10*10;
+    snprintf(gpsPositionPartOne, sizeof(gpsPositionPartOne), "%0.5f", gpsPositionPartOneRaw);
+    snprintf(gpsPositionPartTwo, sizeof(gpsPositionPartTwo), "%0.5f", gpsPositionPartTwoRaw);
+
+    //Calculate Velocity Direction
+    int velocityDirRandIndex = (rand() %(7 - 0 + 1)) + 0;
+    char velocityDir[3];
+    if (velocityDirRandIndex == 0){
+        strcpy(velocityDir, "N");
+    }
+    else if (velocityDirRandIndex == 1){
+       strcpy(velocityDir, "NE");
+    }
+    else if (velocityDirRandIndex == 2){
+        strcpy(velocityDir, "E");
+    }
+    else if (velocityDirRandIndex == 3){
+        strcpy(velocityDir, "SE");
+    }
+    else if (velocityDirRandIndex == 4){
+        strcpy(velocityDir, "S");
+    }
+    else if (velocityDirRandIndex == 5){
+        strcpy(velocityDir, "SW");
+    }
+    else if (velocityDirRandIndex == 6){
+        strcpy(velocityDir, "W");
+    }
+    else{
+        strcpy(velocityDir, "NW");
+    }
+
+    //Calculate Velocity Magnitude
+    char velocityMag[6];
+    float velocityMagRaw = ((float)rand()/(float)(RAND_MAX))*10*10;
+    snprintf(velocityMag, sizeof(velocityMag), "%0.1f", velocityMagRaw);
+
+    //Calculate Acceleration Magnitude
+    char acceleration[5];
+    float accelerationRaw = ((float)rand()/(float)(RAND_MAX))*10;
+    int isNegative = (rand() %(9 - 0 + 1)) + 0;
+    if (isNegative == 1){
+        accelerationRaw = accelerationRaw*(-1);
+    }
+    snprintf(acceleration, sizeof(acceleration), "%0.1f", accelerationRaw);
+
+    //Calculate brake value
+    int brakeControlRaw;
+    char brakeControl[3];
+    if (accelerationRaw < 0){
+        brakeControlRaw =  (rand() %(100 - 10 + 1)) + 10;
+    }
+    else{
+        brakeControlRaw =  0;
+    }
+    snprintf(brakeControl, sizeof(brakeControl), "%d", brakeControlRaw);
+
+    //Calculate throttle value
+    int gasThrottleRaw;
+    char gasThrottle[3];
+    if (accelerationRaw > 0){
+        gasThrottleRaw =  (rand() %(100 - 10 + 1)) + 10;
+    }
+    else{
+        gasThrottleRaw =  0;
+    }
+    snprintf(gasThrottle, sizeof(gasThrottle), "%d", gasThrottleRaw);
+
+    //Combine all calculated values into message
+    strcat(server_message, sequenceNumber);
+    strcat(server_message, ",");
+    strcat(server_message, gpsPositionPartOne);
+    strcat(server_message, ",");
+    strcat(server_message, gpsPositionPartTwo);
+    strcat(server_message, ",");
+    strcat(server_message, velocityDir);
+    strcat(server_message, ",");
+    strcat(server_message, velocityMag);
+    strcat(server_message, ",");
+    strcat(server_message, acceleration);
+    strcat(server_message, ",");
+    strcat(server_message, brakeControl);
+    strcat(server_message, ",");
+    strcat(server_message, gasThrottle);
+    //puts(server_message);
+//-----------------------------------------------------------------------------
+
     // Send the message to client:
     if(sendto(socket_desc, server_message, strlen(server_message), 0,
          (struct sockaddr*)&client_addr, client_struct_length) < 0){
