@@ -3,12 +3,13 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
-#include <ctype.h>
 
 int main(void){
     int socket_desc;
     struct sockaddr_in server_addr;
     char server_message[100], client_message[100];
+    char errorMessage[] = "Error: did not receive data";
+    char okMessage[] = "OK";
     int server_struct_length = sizeof(server_addr);
     
     // Clean buffers:
@@ -49,12 +50,8 @@ int main(void){
     
     printf("Msg from server: %s\n", server_message);
     
-    // Change to uppercase:
-    for(int i = 0; server_message[i]; ++i)
-        server_message[i] = toupper(server_message[i]);
-    
     // Respond to server:
-    strcpy(client_message, server_message);
+    strcpy(client_message, okMessage);
     
     if (sendto(socket_desc, client_message, strlen(client_message), 0,
          (struct sockaddr*)&server_addr, server_struct_length) < 0){
