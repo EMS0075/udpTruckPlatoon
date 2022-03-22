@@ -6,7 +6,7 @@
 
 int main(void){
     int socket_desc;
-    struct sockaddr_in server_addr, client_addr;
+    struct sockaddr_in client_addr;
     char server_message[100], client_message[100];
     int client_struct_length = sizeof(client_addr);
     
@@ -24,9 +24,9 @@ int main(void){
     printf("Socket created successfully\n");
     
     // Set port and IP:
-    server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(2000);
-    server_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+    client_addr.sin_family = AF_INET;
+    client_addr.sin_port = htons(2000);
+    client_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
     
     // Get input from the user:
     printf("Enter message: ");
