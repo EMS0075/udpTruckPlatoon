@@ -2,12 +2,14 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <unistd.h>
+#include <ctype.h>
 
 int main(void){
     int socket_desc;
-    struct sockaddr_in server_addr, client_addr;
+    struct sockaddr_in server_addr;
     char server_message[100], client_message[100];
-    int client_struct_length = sizeof(client_addr);
+    int server_struct_length = sizeof(server_addr);
     
     // Clean buffers:
     memset(server_message, '\0', sizeof(server_message));
@@ -36,26 +38,26 @@ int main(void){
     
     printf("Listening for incoming messages...\n\n");
     
-    // Receive client's message:
-    if (recvfrom(socket_desc, client_message, sizeof(client_message), 0,
-         (struct sockaddr*)&client_addr, &client_struct_length) < 0){
+    // Receive servers's message:
+    if (recvfrom(socket_desc, server_message, sizeof(server_message), 0,
+         (struct sockaddr*)&server_addr, &server_struct_length) < 0){
         printf("Couldn't receive\n");
         return -1;
     }
     printf("Received message from IP: %s and port: %i\n",
-           inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
+           inet_ntoa(server_addr.sin_addr), ntohs(server_addr.sin_port));
     
-    printf("Msg from client: %s\n", client_message);
+    printf("Msg from server: %s\n", server_message);
     
     // Change to uppercase:
-    for(int i = 0; client_message[i]; ++i)
-        client_message[i] = toupper(client_message[i]);
+    for(int i = 0; server_message[i]; ++i)
+        server_message[i] = toupper(server_message[i]);
     
-    // Respond to client:
-    strcpy(server_message, client_message);
+    // Respond to server:
+    strcpy(client_message, server_message);
     
-    if (sendto(socket_desc, server_message, strlen(server_message), 0,
-         (struct sockaddr*)&client_addr, client_struct_length) < 0){
+    if (sendto(socket_desc, client_message, strlen(client_message), 0,
+         (struct sockaddr*)&server_addr, server_struct_length) < 0){
         printf("Can't send\n");
         return -1;
     }
