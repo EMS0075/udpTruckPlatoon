@@ -1,3 +1,10 @@
+/*
+ * TITLE: COMP 5360 project 1
+ * FILENAME: udp_client.c
+ * AUTHORS: Elijah Stephenson ems0075
+ * 	    Dylan Barnes dkb0023
+ */
+
 #include <stdio.h>
 #include <string.h>
 #include <sys/socket.h>
@@ -10,7 +17,17 @@ int main(void){
     char server_message[100], client_message[100];
     char errorMessage[] = "Error: did not receive data";
     char okMessage[] = "OK";
+    int seqNumIndex = -1;
+    int gpsPos1Index = -1;
+    int gpsPos2Index = -1;
+    int velDirIndex = -1;
+    int velMagIndex = -1;
+    int accIndex = -1;
+    int brakeCtrlIndex = -1;
+    int throttle = -1;
     int server_struct_length = sizeof(server_addr);
+    int i;
+    int varNum = 1;
     
     // Clean buffers:
     memset(server_message, '\0', sizeof(server_message));
@@ -45,10 +62,27 @@ int main(void){
         printf("Couldn't receive\n");
         return -1;
     }
-    printf("Received message from IP: %s and port: %i\n",
-           inet_ntoa(server_addr.sin_addr), ntohs(server_addr.sin_port));
-    
-    printf("Msg from server: %s\n", server_message);
+   
+    //parse server_message
+    printf("Sequence Number: "); 
+	char *pt;
+	pt = strtok(server_message,",");
+		printf("%s\n", pt);
+		pt = strtok(NULL, ",");
+		printf("Source Address: %s\n", inet_ntoa(server_addr.sin_addr));
+		printf("GPS Position: %s, ", pt);
+		pt = strtok(NULL, ",");
+		printf("%s\n", pt);
+		pt = strtok(NULL, ",");
+		printf("Velocity Magnitude: %s\n", pt);
+		pt = strtok(NULL, ",");
+		printf("Velocity Direction: %s\n", pt);
+		pt = strtok(NULL, ",");
+		printf("Acceleration: %s\n", pt);
+		pt = strtok(NULL, ",");
+		printf("Brake Control: %s%%\n", pt);
+		pt = strtok(NULL, ",");
+		printf("Gas Throttle: %s%%\n", pt);
     
     // Respond to server:
     strcpy(client_message, okMessage);
