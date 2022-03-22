@@ -1,3 +1,10 @@
+/*
+ * TITLE: COMP 5360 project 1
+ * FILENAME: udp_server.c
+ * AUTHORS: Elijah Stephenson ems0075
+ * 	    Dylan Barnes dkb0023
+ */
+
 #include <stdio.h>
 #include <string.h>
 #include <sys/socket.h>
