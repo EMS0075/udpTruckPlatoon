@@ -160,7 +160,7 @@ int main(void){
         }
         
         printf("Packet %d Response: %s\n", i+1, client_message);
-        sleep(1);
+        sleep(.10);
     }
     // Close the socket:
     close(socket_desc);
