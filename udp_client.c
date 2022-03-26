@@ -1,8 +1,7 @@
 /*
  * TITLE: COMP 5360 project 1
  * FILENAME: udp_client.c
- * AUTHORS: Elijah Stephenson ems0075
- * 	    Dylan Barnes dkb0023
+ * AUTHORS: Elijah Stephenson ems0075 Dylan Barnes dkb0023
  */
 
 #include <stdio.h>
