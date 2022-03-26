@@ -89,6 +89,12 @@ int main(void){
             printf("Can't send\n");
             return -1;
         }
+<<<<<<< HEAD
+=======
+        
+        printf("Packet %d Response: %s\n", i+1, client_message);
+        sleep(.10);
+>>>>>>> 0fd575e0ee90e821eda2bc3d19917847235c7444
     }
     // Close the socket:
     close(socket_desc);
