@@ -1,6 +1,6 @@
 /*
  * TITLE: COMP 5360 project 1
- * FILENAME: udp_server.c
+ * FILENAME: udp_client.c
  * AUTHORS: Elijah Stephenson ems0075
  * 			Dylan Barnes dkb0023
  */
