@@ -15,13 +15,21 @@
 
 int main(void){
     int socket_desc;
-    struct sockaddr_in client_addr;
-    char server_message[100], client_message[100];
-    int client_struct_length = sizeof(client_addr);
+    struct sockaddr_in server_addr;
+    char client_message[100], server_message[100];
+    int server_struct_length = sizeof(server_addr);
     
+    //Print assignment and personal info
+    printf("\n//////////////////////////////////////////////\n");
+    printf("      TITLE: COMP 5360 project 1\n");
+    printf("      FILENAME: udp_client.c\n");
+    printf("      AUTHORS: Elijah Stephenson ems0075\n");
+    printf("               Dylan Barnes dkb0023\n");
+    printf("  (Undergraduate students, graduate bonus)\n");
+    printf("//////////////////////////////////////////////\n\n");
+
     // Create socket:
     socket_desc = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-    
     if(socket_desc < 0){
         printf("Error while creating socket\n\n");
         return -1;
@@ -29,24 +37,24 @@ int main(void){
     printf("Socket created successfully\n\n");
     
     // Set port and IP:
-    client_addr.sin_family = AF_INET;
+    server_addr.sin_family = AF_INET;
     //original was 2000
-    client_addr.sin_port = htons(2000);
-    client_addr.sin_addr.s_addr = inet_addr("192.168.1.140");
+    server_addr.sin_port = htons(2000);
+    server_addr.sin_addr.s_addr = inet_addr("192.168.1.20");
     
     //Random set
     srand(time(NULL));
 
     // Get input from the user:
     //printf("Enter message: ");
-    //fgets(server_message, 100, stdin);
+    //fgets(client_message, 100, stdin);
     
     //Loop the main logic 100 times to recieve 100 packets
     for(int i = 0; i < 100; i++){
 
         // Clean buffers:
-        memset(server_message, '\0', sizeof(server_message));
         memset(client_message, '\0', sizeof(client_message));
+        memset(server_message, '\0', sizeof(server_message));
 
         //Generate Message ----------------------------------------------------
 
@@ -128,29 +136,29 @@ int main(void){
         snprintf(gasThrottle, sizeof(gasThrottle), "%d", gasThrottleRaw);
 
         //Combine all calculated values into message
-        strcat(server_message, sequenceNumber);
-        strcat(server_message, ",");
-        strcat(server_message, gpsPositionPartOne);
-        strcat(server_message, ",");
-        strcat(server_message, gpsPositionPartTwo);
-        strcat(server_message, ",");
-        strcat(server_message, velocityDir);
-        strcat(server_message, ",");
-        strcat(server_message, velocityMag);
-        strcat(server_message, ",");
-        strcat(server_message, acceleration);
-        strcat(server_message, ",");
-        strcat(server_message, brakeControl);
-        strcat(server_message, ",");
-        strcat(server_message, gasThrottle);
-        //puts(server_message);
+        strcat(client_message, sequenceNumber);
+        strcat(client_message, ",");
+        strcat(client_message, gpsPositionPartOne);
+        strcat(client_message, ",");
+        strcat(client_message, gpsPositionPartTwo);
+        strcat(client_message, ",");
+        strcat(client_message, velocityDir);
+        strcat(client_message, ",");
+        strcat(client_message, velocityMag);
+        strcat(client_message, ",");
+        strcat(client_message, acceleration);
+        strcat(client_message, ",");
+        strcat(client_message, brakeControl);
+        strcat(client_message, ",");
+        strcat(client_message, gasThrottle);
+        //puts(client_message);
 
         //Message generated ---------------------------------------------------
 
         // Print message to console
         printf("========== SENDING DATA ==========\n");
         printf("Sequence Number: %s\n", sequenceNumber);
-        printf("Source Address: %s\n", inet_ntoa(client_addr.sin_addr));
+        printf("Source Address: %s\n", inet_ntoa(server_addr.sin_addr));
         printf("GPS Position: %s, %s\n", gpsPositionPartOne, gpsPositionPartTwo);
         printf("Velocity Direction: %s\n", velocityDir);
         printf("Velocity Magnitude: %s\n", velocityMag);
@@ -159,22 +167,22 @@ int main(void){
         printf("Gas Throttle: %s%%\n", gasThrottle);
         printf("==================================\n\n");
 
-        // Send the message to client:
-        if(sendto(socket_desc, server_message, strlen(server_message), 0,
-            (struct sockaddr*)&client_addr, client_struct_length) < 0){
+        // Send the message to server:
+        if(sendto(socket_desc, client_message, strlen(client_message), 0,
+            (struct sockaddr*)&server_addr, server_struct_length) < 0){
             printf("Unable to send message\n");
             return -1;
         }
         
-        // Receive the client's response:
-        if(recvfrom(socket_desc, client_message, sizeof(client_message), 0,
-            (struct sockaddr*)&client_addr, &client_struct_length) < 0){
-            printf("Error while receiving server's msg\n");
+        // Receive the server's response:
+        if(recvfrom(socket_desc, server_message, sizeof(server_message), 0,
+            (struct sockaddr*)&server_addr, &server_struct_length) < 0){
+            printf("Error while receiving client's msg\n");
             return -1;
         }
         
-        printf("Packet %d Response: %s\n\n", i+1, client_message);
-        sleep(1);
+        printf("Packet %d Response from Address %s: %s\n\n", i+1, inet_ntoa(server_addr.sin_addr), server_message);
+        sleep(.10);
     }
     // Close the socket:
     close(socket_desc);
