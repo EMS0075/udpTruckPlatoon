@@ -11,6 +11,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <sys/time.h>
 #include <time.h>
 
 int main(void){
@@ -48,7 +49,7 @@ int main(void){
     // Get input from the user:
     //printf("Enter message: ");
     //fgets(client_message, 100, stdin);
-    
+
     //Loop the main logic 100 times to recieve 100 packets
     for(int i = 0; i < 100; i++){
 
@@ -165,7 +166,33 @@ int main(void){
         printf("Acceleration: %s\n", acceleration);
         printf("Brake Control: %s%%\n", brakeControl);
         printf("Gas Throttle: %s%%\n", gasThrottle);
-        printf("==================================\n\n");
+        printf("==================================\n");
+
+        //Time Related Stuff.......
+        // variables to store the date and time components
+        int hours, minutes, seconds;
+ 
+        // `time_t` is an arithmetic time type
+        time_t now;
+ 
+        // Obtain current time
+        time(&now); // `time()` returns the current time of the system as a `time_t` value
+        struct timeval time_now;
+        gettimeofday(&time_now, NULL); //get milliseconds differently because....just because idk
+        ctime(&now); // Convert to local time format
+        struct tm *local = localtime(&now);
+    
+        hours = local->tm_hour;  // get hours since midnight (0-23)
+        minutes = local->tm_min; // get minutes passed after the hour (0-59)
+        seconds = local->tm_sec; // get seconds passed after a minute (0-59)
+    
+        // print local time
+        if (hours < 12) {    // before midday
+            printf("Sent at %02d:%02d:%02d:%06d am\n", hours, minutes, seconds, time_now.tv_usec);
+        }
+        else {    // after midday
+            printf("Sent at %02d:%02d:%02d:%06d pm\n", hours - 12, minutes, seconds, time_now.tv_usec);
+        }
 
         // Send the message to server:
         if(sendto(socket_desc, client_message, strlen(client_message), 0,
