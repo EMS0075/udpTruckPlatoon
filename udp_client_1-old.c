@@ -15,47 +15,53 @@
 #include <time.h>
 
 int main(void){
-    int socket_desc;
-    struct sockaddr_in server_addr;
+    int socket_desc_1;
+    int socket_desc_2;
+    struct sockaddr_in server_addr_1;
     struct sockaddr_in server_addr_2;
     char client_message[100], server_message[100];
-    int server_struct_length = sizeof(server_addr);
+    int server_struct_length = sizeof(server_addr_1);
     
     //Print assignment and personal info
     printf("\n//////////////////////////////////////////////\n");
-    printf("      TITLE: COMP 5360 project 1\n");
+    printf("      TITLE: COMP 5360 project 2\n");
     printf("      FILENAME: udp_client_1.c\n");
     printf("      AUTHORS: Elijah Stephenson ems0075\n");
     printf("               Dylan Barnes dkb0023\n");
-    printf("	  USAGE: Truck X\n");
-    printf("		(dynamic data bonus)\n");
+    printf("  (Undergraduate students, graduate bonus)\n");
     printf("//////////////////////////////////////////////\n\n");
 
-    // Create socket:
-    socket_desc = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-    if(socket_desc < 0){
+    // Create socket 1:
+    socket_desc_1 = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+    if(socket_desc_1 < 0){
         printf("Error while creating socket\n\n");
         return -1;
     }
-    printf("Socket created successfully\n\n");
+    printf("Socket 1 created successfully\n\n");
     
-    // Set port and IP:
-    server_addr.sin_family = AF_INET;
-    //original was 2000
-    server_addr.sin_port = htons(2000);
-    server_addr.sin_addr.s_addr = inet_addr("192.168.1.161");
-    
-    // Set port and IP:
-	server_addr_2.sin_family = AF_INET;
-	//original was 2000
-	server_addr_2.sin_port = htons(2004);
-	server_addr_2.sin_addr.s_addr = inet_addr("192.168.1.161");
-
-	if(bind(socket_desc, (struct sockaddr*)&server_addr_2, sizeof(server_addr_2)) < 0){
-		printf("Couldn't bind socket 1 to the port\n");
+    socket_desc_2 = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+    //Create Socket 2
+    if(socket_desc_2 < 0){
+		printf("Error while creating socket\n\n");
 		return -1;
 	}
-	//Random set
+	printf("Socket 2 created successfully\n\n");
+
+
+    // Set port and IP of Socket 1:
+    server_addr_1.sin_family = AF_INET;
+    //original was 2000
+	server_addr_1.sin_port = htons(2000);
+	server_addr_1.sin_addr.s_addr = inet_addr("192.168.1.161");
+
+    // Set port and IP of Socket 2:
+    server_addr_2.sin_family = AF_INET;
+    server_addr_2.sin_port = htons(2001);
+	server_addr_2.sin_addr.s_addr = inet_addr("192.168.1.161");
+
+    
+
+    //Random set
     srand(time(NULL));
 
     // Get input from the user:
@@ -63,7 +69,7 @@ int main(void){
     //fgets(client_message, 100, stdin);
 
     //Loop the main logic 100 times to recieve 100 packets
-    for(int i = 0; i < 1; i++){
+    for(int i = 0; i < 100; i++){
 
         // Clean buffers:
         memset(client_message, '\0', sizeof(client_message));
@@ -169,9 +175,9 @@ int main(void){
         //Message generated ---------------------------------------------------
 
         // Print message to console
-        printf("========== SENDING TRUCK X DATA ==========\n");
+        printf("========== SENDING DATA ==========\n");
         printf("Sequence Number: %s\n", sequenceNumber);
-        printf("Source Address: %s\n", inet_ntoa(server_addr.sin_addr));
+        printf("Source Address: %s\n", inet_ntoa(server_addr_1.sin_addr));
         printf("GPS Position: %s, %s\n", gpsPositionPartOne, gpsPositionPartTwo);
         printf("Velocity Direction: %s\n", velocityDir);
         printf("Velocity Magnitude: %s\n", velocityMag);
@@ -206,37 +212,42 @@ int main(void){
             printf("Sent at %02d:%02d:%02d:%06d pm\n", hours - 12, minutes, seconds, time_now.tv_usec);
         }
 
-        // Send the message to server:
-        if(sendto(socket_desc, client_message, strlen(client_message), 0,
-            (struct sockaddr*)&server_addr, server_struct_length) < 0){
-            printf("Unable to send message\n");
-            return -1;
-        }
+        //if(i % 2 == 0){
+			// Send the message to server:
+			if(sendto(socket_desc_1, client_message, strlen(client_message), 0,
+				(struct sockaddr*)&server_addr_1, server_struct_length) < 0){
+				printf("Unable to send message\n");
+				return -1;
+			}
+			// Receive the server's response:
+			if(recvfrom(socket_desc_1, server_message, sizeof(server_message), 0,
+				(struct sockaddr*)&server_addr_1, &server_struct_length) < 0){
+				printf("Error while receiving client's msg\n");
+				return -1;
+			}
+        //}
+        //else {
+/*        	if(sendto(socket_desc_2, client_message, strlen(client_message), 0,
+				(struct sockaddr*)&server_addr_2, server_struct_length) < 0){
+				printf("Unable to send message\n");
+				return -1;
+			}
+        	if(recvfrom(socket_desc_2, server_message, sizeof(server_message), 0,
+				(struct sockaddr*)&server_addr_2, &server_struct_length) < 0){
+				printf("Error while receiving client's msg\n");
+				return -1;
+			}*/
+        //}
         
-        // Receive the server's response:
-        if(recvfrom(socket_desc, server_message, sizeof(server_message), 0,
-            (struct sockaddr*)&server_addr, &server_struct_length) < 0){
-            printf("Error while receiving client's msg\n");
-            return -1;
-        }
-        
-        printf("Packet %d Response from Address %s: %s\n\n", i+1, inet_ntoa(server_addr.sin_addr), server_message);
+
+        printf("Packet %d Response from Address %s: %s\n\n", i+1, inet_ntoa(server_addr_1.sin_addr), server_message);
         sleep(.10);
-
-        //server_addr.sin_port = htons(2004);
-
-
-        if(recvfrom(socket_desc, server_message, sizeof(server_message), 0,
-			(struct sockaddr*)&server_addr, &server_struct_length) < 0){
-			printf("Error while receiving client's msg\n");
-			return -1;
-		}
-
-		printf("Packet %d Response from Address %s: %s\n\n", i+1, inet_ntoa(server_addr.sin_addr), server_message);
-		sleep(.10);
     }
-    // Close the socket:
-    close(socket_desc);
+    // Close socket 1:
+    close(socket_desc_1);
+
+    // Close socket 2:
+    close(socket_desc_2);
     
     return 0;
 }
