@@ -25,7 +25,7 @@ int main(void){
     printf("      FILENAME: udp_server_1.c\n");
     printf("      AUTHORS: Elijah Stephenson ems0075\n");
     printf("               Dylan Barnes dkb0023\n");
-    printf("  (Undergraduate students, graduate bonus)\n");
+    printf("	  USAGE: Truck Z\n");
     printf("//////////////////////////////////////////////\n\n");
 
     // Create UDP socket:
@@ -53,7 +53,7 @@ int main(void){
     printf("Listening for incoming messages...\n\n");
     
     //Loop the main logic 100 times to recieve 100 packets
-    for(int i = 0; i < 100; i++){
+    for(int i = 0; i < 2; i++){
 
         // Clean buffers:
         memset(client_message, '\0', sizeof(client_message));

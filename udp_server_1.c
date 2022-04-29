@@ -27,7 +27,7 @@ int main(void){
     printf("      FILENAME: udp_server_1.c\n");
     printf("      AUTHORS: Elijah Stephenson ems0075\n");
     printf("               Dylan Barnes dkb0023\n");
-    printf("  (Undergraduate students, graduate bonus)\n");
+    printf("	  USAGE: Truck Y Receiver\n");
     printf("//////////////////////////////////////////////\n\n");
 
     // Create UDP sockets:
@@ -75,7 +75,7 @@ int main(void){
     printf("Listening for incoming messages...\n\n");
     
     //Loop the main logic 100 times to recieve 100 packets
-    for(int i = 0; i < 100; i++){
+    for(int i = 0; i < 1; i++){
 			// Clean buffers:
 			memset(client_message_1, '\0', sizeof(client_message_1));
 			memset(server_message, '\0', sizeof(server_message));
@@ -121,27 +121,32 @@ int main(void){
 
 			client_addr_1.sin_port = htons(2001);
 
-			printf("Relaying Data to port\n");
+			printf("Relaying Data to Truck Y client...\n");
 			if (sendto(socket_desc_1, client_message_2, strlen(client_message_2), 0,
 				(struct sockaddr*)&client_addr_1, client_struct_length) < 0){
 				printf("Can't send\n");
 				return -1;
 			}
-			printf("Data Relayed\n");
+			printf("Data Successfully Relayed\n\n");
+
 
 			if (recvfrom(socket_desc_1, client_message_3, sizeof(client_message_3), 0,
 				(struct sockaddr*)&client_addr_1, &client_struct_length) < 0){
 				printf("Couldn't receive\n");
 				return -1;
 			}
-			printf("%s", client_message_3);
 
+			printf("Packet %d Response from Address %s: %s\n\n", i+1, inet_ntoa(client_addr_2.sin_addr), client_message_3);
+			sleep(.10);
+
+			printf("Relaying Packet %d Response to Address %s\n", i+1, inet_ntoa(client_addr_1.sin_addr));
 			client_addr_1.sin_port = htons(2004);
 			if (sendto(socket_desc_1, client_message_3, strlen(client_message_3), 0,
 				(struct sockaddr*)&client_addr_1, client_struct_length) < 0){
 				printf("Can't send\n");
 				return -1;
 			}
+			printf("Packet Relayed Successfully\n");
     }
     // Close sockets:
     close(socket_desc_1);
